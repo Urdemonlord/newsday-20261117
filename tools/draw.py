@@ -91,27 +91,30 @@ def fit_font(d, text, name, start, max_w):
 
 # ---------------------------------------------------------------- motifs
 def motif_eye(d, ox, oy, s=56):
+    cx, cy = ox + s / 2, oy + s / 2
+    r_out = s * 0.18
     d.ellipse([ox + 4, oy + s * 0.32, ox + s - 4, oy + s * 0.68],
               outline=INK, width=3)
-    d.ellipse([ox + s / 2 - 10, oy + s / 2 - 10, ox + s / 2 + 10, oy + s / 2 + 10],
+    d.ellipse([cx - r_out, cy - r_out, cx + r_out, cy + r_out],
               outline=RED, width=3)
-    d.ellipse([ox + s / 2 - 4, oy + s / 2 - 4, ox + s / 2 + 4, oy + s / 2 + 4],
-              fill=INK)
+    r_in = s * 0.07
+    d.ellipse([cx - r_in, cy - r_in, cx + r_in, cy + r_in], fill=INK)
 
 
 def motif_globe(d, ox, oy, s=56):
-    cx, cy, r = ox + s / 2, oy + s / 2, 21
+    cx, cy, r = ox + s / 2, oy + s / 2, s * 0.375
     d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=INK, width=3)
     d.arc([cx - r, cy - r + 9, cx + r, cy + r - 9], 200, 340, fill=INK, width=2)
     d.arc([cx - r, cy - r + 9, cx + r, cy + r - 9], 20, 160, fill=INK, width=2)
-    d.line([cx - 13, cy + 13, cx + 13, cy - 13], fill=INK, width=2)
-    # tilt axis
-    d.line([cx - 6, cy - 27, cx + 6, cy + 27], fill=RED, width=3)
+    d.line([cx - r * 0.62, cy + r * 0.62, cx + r * 0.62, cy - r * 0.62],
+           fill=INK, width=2)
+    # tilt axis, kept short so it never reaches the headline below
+    d.line([cx - 6, cy - s * 0.38, cx + 6, cy + s * 0.38], fill=RED, width=3)
 
 
 def motif_bars(d, ox, oy, s=56):
-    bw, gap = 12, 7
-    heights = [42, 30, 17]
+    bw, gap = s * 0.21, s * 0.125
+    heights = [s * 0.75, s * 0.54, s * 0.30]
     x = ox + 5
     base = oy + s - 6
     for i, h in enumerate(heights):
@@ -123,16 +126,22 @@ def motif_bars(d, ox, oy, s=56):
 
 def motif_chair(d, ox, oy, s=56):
     # empty chair: back, seat, legs, one red cushion outline left empty
-    d.line([ox + 12, oy + 6, ox + 12, oy + 34], fill=INK, width=3)
-    d.line([ox + 12, oy + 6, ox + 38, oy + 6], fill=INK, width=3)
-    d.line([ox + 38, oy + 6, ox + 38, oy + 34], fill=INK, width=3)
-    d.line([ox + 8, oy + 34, ox + 46, oy + 34], fill=INK, width=3)
-    d.line([ox + 12, oy + 34, ox + 8, oy + 50], fill=INK, width=3)
-    d.line([ox + 42, oy + 34, ox + 48, oy + 50], fill=INK, width=3)
-    d.rectangle([ox + 16, oy + 20, ox + 34, oy + 30], outline=RED, width=2)
+    k = s / 56
+    def X(v):
+        return ox + v * k
+    def Y(v):
+        return oy + v * k
+    d.line([X(12), Y(6), X(12), Y(34)], fill=INK, width=3)
+    d.line([X(12), Y(6), X(38), Y(6)], fill=INK, width=3)
+    d.line([X(38), Y(6), X(38), Y(34)], fill=INK, width=3)
+    d.line([X(8), Y(34), X(46), Y(34)], fill=INK, width=3)
+    d.line([X(12), Y(34), X(8), Y(50)], fill=INK, width=3)
+    d.line([X(42), Y(34), X(48), Y(50)], fill=INK, width=3)
+    d.rectangle([X(16), Y(20), X(34), Y(30)], outline=RED, width=2)
 
 
 def motif_gavel(d, ox, oy, s=56):
+    k = s / 56
     def rot(px, py, cx, cy, deg):
         a = math.radians(deg)
         dx, dy = px - cx, py - cy
@@ -140,38 +149,78 @@ def motif_gavel(d, ox, oy, s=56):
                 cy + dx * math.sin(a) + dy * math.cos(a))
 
     cx, cy = ox + s / 2, oy + s / 2
-    head = [(ox + 8, oy + 12), (ox + 48, oy + 12), (ox + 48, oy + 26),
-            (ox + 8, oy + 26)]
+    head = [(ox + 8 * k, oy + 12 * k), (ox + 48 * k, oy + 12 * k),
+            (ox + 48 * k, oy + 26 * k), (ox + 8 * k, oy + 26 * k)]
     d.polygon([rot(x, y, cx, cy, 28) for x, y in head], fill=INK)
-    hx1, hy1 = rot(ox + 28, oy + 26, cx, cy, 28)
-    hx2, hy2 = rot(ox + 28, oy + 48, cx, cy, 28)
+    hx1, hy1 = rot(ox + 28 * k, oy + 26 * k, cx, cy, 28)
+    hx2, hy2 = rot(ox + 28 * k, oy + 48 * k, cx, cy, 28)
     d.line([hx1, hy1, hx2, hy2], fill=INK, width=5)
-    bx1, by1 = rot(ox + 8, oy + 50, cx, cy, 28)
-    bx2, by2 = rot(ox + 48, oy + 50, cx, cy, 28)
+    bx1, by1 = rot(ox + 8 * k, oy + 50 * k, cx, cy, 28)
+    bx2, by2 = rot(ox + 48 * k, oy + 50 * k, cx, cy, 28)
     d.line([bx1, by1, bx2, by2], fill=RED, width=3)
 
 
 def motif_flags_podium(d, x0, y0, x1, y1):
-    """Three flags above a podium. Zone: x0..x1, y0..y1."""
-    poles = [x0 + 52, x0 + 152, x0 + 252]
-    top, base = y0 + 8, y1 - 64
+    """Summit scene: three large flags, bunting between the poles, a
+    lectern with two microphones, and a Manila skyline silhouette
+    flanking it. Zone: x0..x1, y0..y1. Flat vector, ink/red/blue only."""
+    cx = (x0 + x1) // 2
+    base = y1 - 2
+    lect_top = y1 - 150
+
+    # --- skyline silhouette along the bottom (x, width, height) ---
+    buildings = [(0, 30, 52), (34, 24, 78), (62, 34, 40), (100, 32, 96),
+                 (136, 28, 62), (168, 32, 88), (204, 28, 58), (236, 28, 84),
+                 (268, 48, 48)]
+    for bx, bw, bh in buildings:
+        d.rectangle([x0 + bx, base - bh, x0 + bx + bw, base], fill=INK)
+    # lit windows, paper on the visible towers only
+    for bx, by, wx in [(6, 12, 8), (6, 26, 8), (40, 14, 8), (40, 30, 8),
+                       (40, 46, 8), (68, 12, 8), (242, 14, 8), (242, 30, 8),
+                       (274, 12, 8), (274, 26, 8), (292, 12, 8)]:
+        d.rectangle([x0 + bx, base - by, x0 + bx + 4, base - by + 6],
+                    fill=PAPER)
+    # one red window on the right tower, antenna on the left tower
+    d.rectangle([x0 + 248, base - 46, x0 + 252, base - 40], fill=RED)
+    d.line([x0 + 46, base - 78, x0 + 46, base - 88], fill=INK, width=2)
+    d.ellipse([x0 + 43, base - 92, x0 + 49, base - 86], fill=RED)
+
+    # --- lectern, narrower than the flag span so the skyline shows ---
+    d.polygon([(cx - 64, lect_top), (cx + 64, lect_top),
+               (cx + 78, base), (cx - 78, base)], fill=INK)
+    d.rectangle([cx - 64, lect_top - 6, cx + 64, lect_top], fill=RED)
+    # blank paper nameplate on the lectern front
+    d.rectangle([cx - 23, lect_top + 66, cx + 23, lect_top + 96],
+                fill=PAPER, outline=RED, width=2)
+    # two microphones rising from the lectern top
+    for sgn in (-1, 1):
+        d.line([cx + sgn * 22, lect_top, cx + sgn * 32, lect_top - 40],
+               fill=INK, width=3)
+        d.ellipse([cx + sgn * 32 - 6, lect_top - 46, cx + sgn * 32 + 6,
+                   lect_top - 34], fill=INK)
+
+    # --- three large flags on poles behind the lectern ---
+    poles = [x0 + 32, x0 + 132, x0 + 232]
+    top = y0 + 8
+    fw, fh = 84, 54
     for px in poles:
-        d.line([px, top, px, base], fill=INK, width=4)
+        d.line([px, top, px, lect_top], fill=INK, width=4)
         d.ellipse([px - 3, top - 4, px + 3, top + 2], fill=RED)
-    fw, fh = 62, 40
     # Indonesia: red over white
     d.rectangle([poles[0], top, poles[0] + fw, top + fh], outline=INK, width=2)
-    d.rectangle([poles[0] + 1, top + 1, poles[0] + fw - 1, top + fh // 2], fill=RED)
+    d.rectangle([poles[0] + 1, top + 1, poles[0] + fw - 1, top + fh // 2],
+                fill=RED)
     # United States: stripes + canton
     d.rectangle([poles[1], top, poles[1] + fw, top + fh], fill=(255, 255, 255),
                 outline=INK, width=2)
     for i in range(0, 7, 2):
         d.rectangle([poles[1] + 1, top + 1 + i * (fh // 7),
-                     poles[1] + fw - 1, top + 1 + (i + 1) * (fh // 7)], fill=RED)
-    d.rectangle([poles[1] + 1, top + 1, poles[1] + 26, top + fh // 2 + 2],
+                     poles[1] + fw - 1, top + 1 + (i + 1) * (fh // 7)],
+                    fill=RED)
+    d.rectangle([poles[1] + 1, top + 1, poles[1] + 34, top + fh // 2 + 2],
                 fill=BLUE)
-    for dx in (6, 14, 22):
-        for dy in (5, 12):
+    for dx in (8, 18, 28):
+        for dy in (6, 14):
             d.ellipse([poles[1] + dx - 1, top + dy - 1,
                        poles[1] + dx + 1, top + dy + 1], fill=(255, 255, 255))
     # ASEAN: blue field, white ring of ten dots
@@ -180,13 +229,18 @@ def motif_flags_podium(d, x0, y0, x1, y1):
     ccx, ccy = poles[2] + fw // 2, top + fh // 2
     for k in range(10):
         a = math.radians(k * 36 - 90)
-        d.ellipse([ccx + 11 * math.cos(a) - 2, ccy + 9 * math.sin(a) - 2,
-                   ccx + 11 * math.cos(a) + 2, ccy + 9 * math.sin(a) + 2],
+        d.ellipse([ccx + 13 * math.cos(a) - 2, ccy + 11 * math.sin(a) - 2,
+                   ccx + 13 * math.cos(a) + 2, ccy + 11 * math.sin(a) + 2],
                   fill=(255, 255, 255))
-    # lectern spanning all three poles, so none dangles
-    d.polygon([(x0 + 40, base), (x1 - 40, base), (x1 - 24, y1 - 2),
-               (x0 + 24, y1 - 2)], fill=INK)
-    d.rectangle([x0 + 40, base - 6, x1 - 40, base], fill=RED)
+    # bunting sagging between the outer poles
+    d.arc([poles[0], top + 84, poles[2], top + 148], 20, 160, fill=INK,
+          width=2)
+    for k, a in enumerate((45, 75, 105, 135)):
+        ar = math.radians(a)
+        px = 800 + 100 * math.cos(ar)
+        py = top + 116 + 32 * math.sin(ar)
+        d.polygon([(px - 7, py), (px + 7, py), (px, py + 14)],
+                  fill=RED if k % 2 == 0 else INK)
 
 
 # ---------------------------------------------------------------- page
@@ -244,13 +298,16 @@ def render():
     w2 = (CW - gap) // 2              # 477
 
     def panel(x0, y0, w, h, kicker, headline, deck, motif, big=None,
-              head_size=20, deck_size=15):
+              head_size=20, deck_size=15, foot_rule=False):
         d.rectangle([x0, y0, x0 + w, y0 + h], fill=PANEL, outline=INK, width=2)
+        if foot_rule:
+            d.line([x0 + 14, y0 + h - 10, x0 + w - 14, y0 + h - 10],
+                   fill=INK, width=2)
         px, py = x0 + 14, y0 + 12
         f_k = font(SANS_B, 14)
         d.text((px, py), kicker, font=f_k, fill=RED)
         if motif:
-            motif(d, x0 + w - 14 - 56, y0 + 8)
+            motif(d, x0 + w - 14 - 68, y0 + 6, s=68)
         f_h = font(SANS_B, head_size)
         y = block(d, px, py + 58, headline, f_h, INK, w - 28,
                   head_size + 6, y0 + h - 70, tag=f"headline {kicker}")
@@ -284,13 +341,13 @@ def render():
           "Prabowo picks the successor; Gerindra says wait until he returns, "
           "around 24 Nov. Police general Eko Hadi Santoso sacked over "
           "wiretapping of the president.", motif_chair,
-          head_size=22, deck_size=16)
+          head_size=22, deck_size=16, foot_rule=True)
     panel(gx0 + w2 + gap, y2, w2, row2_h, "GRAFT",
           "DISASTER-FUND GRAFT AT BNPB",
           "KPK revealed procurement graft using disaster ready-to-use funds: "
           "\u201cborrowed company flags\u201d and fees paid to officials for "
           "direct appointments.", motif_gavel,
-          head_size=22, deck_size=16)
+          head_size=22, deck_size=16, foot_rule=True)
 
     # ---- ticker strip ----
     ty0 = 972
